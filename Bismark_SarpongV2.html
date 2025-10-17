@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Quote Generator - Categorized</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+
+        .category-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .category-btn {
+            padding: 12px 24px;
+            background: #f0f0f0;
+            color: #333;
+            border: 2px solid transparent;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .category-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .category-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .quote-display {
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .quote-icon {
+            font-size: 48px;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .quote-text {
+            font-size: 24px;
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .quote-author {
+            font-size: 18px;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .quote-author::before {
+            content: "— ";
+        }
+
+        .quote-category {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 6px 16px;
+            background: #667eea;
+            color: white;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        button {
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .add-quote-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 40px;
+        }
+
+        .add-quote-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .quote-count {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Random Quote Generator</h1>
+        
+        <div class="category-selector">
+            <button class="category-btn active" onclick="selectCategory('All')">All</button>
+            <button class="category-btn" onclick="selectCategory('Inspirational')">Inspirational</button>
+            <button class="category-btn" onclick="selectCategory('Funny')">Funny</button>
+            <button class="category-btn" onclick="selectCategory('Life')">Life</button>
+        </div>
+
+        <div class="quote-display">
+            <div class="quote-icon">"</div>
+            <div class="quote-text" id="quoteText">Select a category and click "New Quote" to begin!</div>
+            <div class="quote-author" id="quoteAuthor" style="display: none;"></div>
+            <div class="quote-category" id="quoteCategory" style="display: none;"></div>
+        </div>
+
+        <div class="quote-count" id="quoteCount"></div>
+
+        <div class="controls">
+            <button onclick="generateQuote()">New Quote</button>
+            <button onclick="toggleAddSection()" style="background: #28a745;">Add Quote</button>
+        </div>
+
+        <div class="add-quote-section" id="addQuoteSection" style="display: none;">
+            <h2>Add Your Own Quote</h2>
+            
+            <div class="form-group">
+                <label for="newQuoteText">Quote Text</label>
+                <textarea id="newQuoteText" placeholder="Enter the quote..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="newQuoteAuthor">Author</label>
+                <input type="text" id="newQuoteAuthor" placeholder="Enter author name...">
+            </div>
+
+            <div class="form-group">
+                <label for="newQuoteCategory">Category</label>
+                <select id="newQuoteCategory">
+                    <option value="Inspirational">Inspirational</option>
+                    <option value="Funny">Funny</option>
+                    <option value="Life">Life</option>
+                </select>
+            </div>
+
+            <button onclick="addQuote()">Submit Quote</button>
+        </div>
+    </div>
+
+    <script>
+        let quotes = [
+            { text: "The only way to do great work is to love what you do.", author: "Steve Jobs", category: "Inspirational" },
+            { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt", category: "Inspirational" },
+            { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill", category: "Inspirational" },
+            { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt", category: "Inspirational" },
+            { text: "Don't watch the clock; do what it does. Keep going.", author: "Sam Levenson", category: "Inspirational" },
+            
+            { text: "I'm not superstitious, but I am a little stitious.", author: "Michael Scott", category: "Funny" },
+            { text: "I used to think I was indecisive, but now I'm not so sure.", author: "Unknown", category: "Funny" },
+            { text: "The road to success is dotted with many tempting parking spaces.", author: "Will Rogers", category: "Funny" },
+            { text: "I'm not lazy, I'm on energy-saving mode.", author: "Unknown", category: "Funny" },
+            { text: "Common sense is like deodorant. The people who need it most never use it.", author: "Unknown", category: "Funny" },
+            
+            { text: "Life is what happens when you're busy making other plans.", author: "John Lennon", category: "Life" },
+            { text: "In three words I can sum up everything I've learned about life: it goes on.", author: "Robert Frost", category: "Life" },
+            { text: "To live is the rarest thing in the world. Most people exist, that is all.", author: "Oscar Wilde", category: "Life" },
+            { text: "The purpose of life is not to be happy. It is to be useful, to be honorable, to be compassionate.", author: "Ralph Waldo Emerson", category: "Life" },
+            { text: "Life is really simple, but we insist on making it complicated.", author: "Confucius", category: "Life" }
+        ];
+
+        let currentCategory = 'All';
+        let lastQuoteIndex = -1;
+
+        function selectCategory(category) {
+            currentCategory = category;
+            
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            event.target.classList.add('active');
+            updateQuoteCount();
+        }
+
+        function getFilteredQuotes() {
+            if (currentCategory === 'All') {
+                return quotes;
+            }
+            return quotes.filter(quote => quote.category === currentCategory);
+        }
+
+        function generateQuote() {
+            const filteredQuotes = getFilteredQuotes();
+            
+            if (filteredQuotes.length === 0) {
+                alert('No quotes available in this category!');
+                return;
+            }
+
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * filteredQuotes.length);
+            } while (randomIndex === lastQuoteIndex && filteredQuotes.length > 1);
+            
+            lastQuoteIndex = randomIndex;
+            const quote = filteredQuotes[randomIndex];
+            
+            displayQuote(quote);
+        }
+
+        function displayQuote(quote) {
+            const quoteTextElement = document.getElementById('quoteText');
+            const quoteAuthorElement = document.getElementById('quoteAuthor');
+            const quoteCategoryElement = document.getElementById('quoteCategory');
+            
+            quoteTextElement.classList.remove('fade-in');
+            quoteAuthorElement.classList.remove('fade-in');
+            quoteCategoryElement.classList.remove('fade-in');
+            
+            setTimeout(() => {
+                quoteTextElement.textContent = quote.text;
+                quoteAuthorElement.textContent = quote.author;
+                quoteCategoryElement.textContent = quote.category;
+                
+                quoteAuthorElement.style.display = 'block';
+                quoteCategoryElement.style.display = 'inline-block';
+                
+                quoteTextElement.classList.add('fade-in');
+                quoteAuthorElement.classList.add('fade-in');
+                quoteCategoryElement.classList.add('fade-in');
+            }, 50);
+        }
+
+        function toggleAddSection() {
+            const section = document.getElementById('addQuoteSection');
+            section.style.display = section.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function addQuote() {
+            const text = document.getElementById('newQuoteText').value.trim();
+            const author = document.getElementById('newQuoteAuthor').value.trim();
+            const category = document.getElementById('newQuoteCategory').value;
+
+            if (!text || !author) {
+                alert('Please fill in both quote text and author!');
+                return;
+            }
+
+            quotes.push({ text, author, category });
+            
+            document.getElementById('newQuoteText').value = '';
+            document.getElementById('newQuoteAuthor').value = '';
+            
+            alert('Quote added successfully!');
+            toggleAddSection();
+            updateQuoteCount();
+        }
+
+        function updateQuoteCount() {
+            const filteredQuotes = getFilteredQuotes();
+            const countElement = document.getElementById('quoteCount');
+            countElement.textContent = `${filteredQuotes.length} quotes available in ${currentCategory === 'All' ? 'all categories' : currentCategory}`;
+        }
+
+        updateQuoteCount();
+    </script>
+</body>
+</html>

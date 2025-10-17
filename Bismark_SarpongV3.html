@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Quote Generator - Infinite Quotes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #28a745;
+            --gold: #ffd700;
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        h1 {
+            color: var(--dark);
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { filter: hue-rotate(0deg); }
+            50% { filter: hue-rotate(20deg); }
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .api-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            background: linear-gradient(135deg, var(--success) 0%, #20c997 100%);
+            color: white;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 10px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .stats-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--primary);
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #666;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .category-selector {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+
+        .category-btn {
+            padding: 15px 30px;
+            background: white;
+            color: var(--dark);
+            border: 3px solid #e0e0e0;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+            z-index: 0;
+        }
+
+        .category-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .category-btn:hover {
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .category-btn.active {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .category-btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .quote-display {
+            min-height: 450px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 60px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+            border-radius: 30px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .quote-display::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        .quote-content {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+        }
+
+        .quote-icon {
+            font-size: 80px;
+            color: var(--primary);
+            margin-bottom: 30px;
+            opacity: 0.3;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .quote-text {
+            font-size: 32px;
+            color: var(--dark);
+            line-height: 1.8;
+            margin-bottom: 30px;
+            font-style: italic;
+            font-weight: 500;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .quote-author {
+            font-size: 24px;
+            color: #555;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .quote-author::before {
+            content: "— ";
+            color: var(--primary);
+        }
+
+        .quote-meta {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .badge-category {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+
+        .badge-special {
+            background: linear-gradient(135deg, var(--gold) 0%, #ffed4e 100%);
+            color: var(--dark);
+            animation: shimmer 2s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.8); }
+        }
+
+        .badge-api {
+            background: linear-gradient(135deg, var(--success) 0%, #20c997 100%);
+            color: white;
+        }
+
+        .quote-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 15px 30px;
+            background: white;
+            color: var(--primary);
+            border: 3px solid var(--primary);
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .action-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .action-btn.favorited {
+            background: var(--gold);
+            border-color: var(--gold);
+            color: var(--dark);
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            padding: 18px 40px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-primary:hover::before {
+            width: 400px;
+            height: 400px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-primary span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--success) 0%, #20c997 100%);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold) 0%, #ffed4e 100%);
+            color: var(--dark);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: var(--primary);
+            font-size: 18px;
+            font-weight: 600;
+            margin: 20px 0;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(102, 126, 234, 0.2);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .favorites-section {
+            background: linear-gradient(135deg, #fff9e6 0%, #ffe9b3 100%);
+            padding: 40px;
+            border-radius: 30px;
+            margin-top: 40px;
+            border: 3px solid var(--gold);
+            animation: slideIn 0.5s ease-out;
+            box-shadow: 0 20px 60px rgba(255, 215, 0, 0.3);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .favorites-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .favorites-header h2 {
+            color: var(--dark);
+            font-size: 28px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .sort-select {
+            padding: 12px 20px;
+            border: 3px solid var(--gold);
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            background: white;
+        }
+
+        .favorites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .favorite-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .favorite-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            border-color: var(--gold);
+        }
+
+        .favorite-text {
+            font-size: 18px;
+            color: var(--dark);
+            font-style: italic;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .favorite-author {
+            font-size: 16px;
+            color: #666;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .favorite-rating {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+
+        .star {
+            font-size: 24px;
+            cursor: pointer;
+            color: #ddd;
+            transition: all 0.2s;
+        }
+
+        .star:hover {
+            transform: scale(1.3) rotate(15deg);
+        }
+
+        .star.filled {
+            color: var(--gold);
+            filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.5));
+        }
+
+        .favorite-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn-small {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-view {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-remove {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-small:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 30px;
+            max-width: 500px;
+            width: 90%;
+            animation: scaleIn 0.3s ease-out;
+            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-content h3 {
+            color: var(--dark);
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 28px;
+        }
+
+        .share-buttons {
+            display: grid;
+            gap: 15px;
+        }
+
+        .share-btn {
+            padding: 18px;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .share-btn.twitter {
+            background: #1DA1F2;
+            color: white;
+        }
+
+        .share-btn.facebook {
+            background: #4267B2;
+            color: white;
+        }
+
+        .share-btn.whatsapp {
+            background: #25D366;
+            color: white;
+        }
+
+        .share-btn.copy {
+            background: var(--success);
+            color: white;
+        }
+
+        .share-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .notification {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: white;
+            color: var(--dark);
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            z-index: 2000;
+            display: none;
+            font-weight: 600;
+            border-left: 5px solid var(--success);
+        }
+
+        .notification.show {
+            display: block;
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #999;
+            font-style: italic;
+            font-size: 18px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 36px;
+            }
+
+            .quote-text {
+                font-size: 22px;
+            }
+
+            .quote-display {
+                padding: 40px 20px;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            .favorites-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>∞ Ultimate Quote Generator</h1>
+            <p class="subtitle">Powered by Infinite Quotes from Around the World</p>
+            <div class="api-badge">🌐 LIVE API • UNLIMITED QUOTES</div>
+        </div>
+
+        <div class="stats-dashboard">
+            <div class="stat-card">
+                <div class="stat-icon">🌍</div>
+                <div class="stat-value">∞</div>
+                <div class="stat-label">Infinite Quotes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👁️</div>
+                <div class="stat-value" id="viewCount">0</div>
+                <div class="stat-label">Quotes Viewed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⭐</div>
+                <div class="stat-value" id="favCount">0</div>
+                <div class="stat-label">Favorites</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🔥</div>
+                <div class="stat-value" id="streakCount">0</div>
+                <div class="stat-label">Day Streak</div>
+            </div>
+        </div>
+
+        <div class="category-selector">
+            <button class="category-btn active" onclick="selectCategory('all')">
+                <span>🌟 All Quotes</span>
+            </button>
+            <button class="category-btn" onclick="selectCategory('inspire')">
+                <span>💪 Inspirational</span>
+            </button>
+            <button class="category-btn" onclick="selectCategory('life')">
+                <span>🌱 Life</span>
+            </button>
+            <button class="category-btn" onclick="selectCategory('funny')">
+                <span>😂 Funny</span>
+            </button>
+            <button class="category-btn" onclick="selectCategory('success')">
+                <span>🎯 Success</span>
+            </button>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Loading your quote...</p>
+        </div>
+
+        <div class="quote-display" id="quoteDisplay">
+            <div class="quote-content">
+                <div class="quote-icon">"</div>
+                <div class="quote-text" id="quoteText">Click "Get Infinite Quote" to discover wisdom from around the world!</div>
+                <div class="quote-author" id="quoteAuthor" style="display: none;"></div>
+                <div class="quote-meta">
+                    <div class="badge badge-category" id="categoryBadge" style="display: none;"></div>
+                    <div class="badge badge-special" id="specialBadge" style="display: none;"></div>
+                    <div class="badge badge-api" id="apiBadge" style="display: none;">🌐 LIVE</div>
+                </div>
+                <div class="quote-actions" id="quoteActions" style="display: none;">
+                    <button class="action-btn" onclick="toggleFavorite()" id="favoriteBtn">
+                        <span id="favoriteIcon">⭐</span> <span>Save</span>
+                    </button>
+                    <button class="action-btn" onclick="openShareModal()">
+                        <span>📤</span> <span>Share</span>
+                    </button>
+                    <button class="action-btn" onclick="copyQuote()">
+                        <span>📋</span> <span>Copy</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn-primary" onclick="getInfiniteQuote()">
+                <span>🎲 Get Infinite Quote</span>
+            </button>
+            <button class="btn-primary btn-gold" onclick="getDailyQuote()">
+                <span>☀️ Quote of the Day</span>
+            </button>
+            <button class="btn-primary btn-secondary" onclick="toggleFavorites()">
+                <span>❤️ My Collection (<span id="favCountBtn">0</span>)</span>
+            </button>
+        </div>
+
+        <div class="favorites-section" id="favoritesSection" style="display: none;">
+            <div class="favorites-header">
+                <h2>⭐ Your Favorite Quotes (<span id="favTotal">0</span>)</h2>
+                <select class="sort-select" id="sortSelect" onchange="sortFavorites()">
+                    <option value="recent">📅 Most Recent</option>
+                    <option value="rating">⭐ Highest Rated</option>
+                    <option value="author">✍️ By Author</option>
+                </select>
+            </div>
+            <div class="favorites-grid" id="favoritesGrid"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="shareModal">
+        <div class="modal-content">
+            <h3>📤 Share This Quote</h3>
+            <div class="share-buttons">
+                <button class="share-btn twitter" onclick="shareToTwitter()">
+                    🐦 Share on Twitter
+                </button>
+                <button class="share-btn facebook" onclick="shareToFacebook()">
+                    📘 Share on Facebook
+                </button>
+                <button class="share-btn whatsapp" onclick="shareToWhatsApp()">
+                    💬 Share on WhatsApp
+                </button>
+                <button class="share-btn copy" onclick="copyQuoteModal()">
+                    📋 Copy to Clipboard
+                </button>
+            </div>
+            <button class="btn-primary" onclick="closeShareModal()" style="margin-top: 20px; width: 100%;">
+                <span>Close</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        let currentQuote = null;
+        let currentCategory = 'all';
+        let favorites = JSON.parse(localStorage.getItem('infiniteFavorites')) || [];
+        let viewCount = parseInt(localStorage.getItem('infiniteViews')) || 0;
+        let dailyQuoteDate = localStorage.getItem('dailyDate');
+        let dailyQuoteCache = JSON.parse(localStorage.getItem('dailyQuote'));
+        let streakCount = parseInt(localStorage.getItem('streakCount')) || 0;
+        let lastVisit = localStorage.getItem('lastVisit');
+
+        const API_BASE = 'https://api.quotable.io';
+
+        const categoryMap = {
+            'all': '',
+            'inspire': 'inspirational',
+            'life': 'life',
+            'funny': 'humor',
+            'success': 'success'
+        };
+
+        function checkStreak() {
+            const today = new Date().toDateString();
+            const yesterday = new Date(Date.now() - 86400000).toDateString();
+            
+            if (lastVisit === yesterday) {
+                streakCount++;
+            } else if (lastVisit !== today) {
+                streakCount = 1;
+            }
+            
+            lastVisit = today;
+            localStorage.setItem('lastVisit', lastVisit);
+            localStorage.setItem('streakCount', streakCount);
+            updateStats();
+        }
+
+        function selectCategory(category) {
+            currentCategory = category;
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.closest('.category-btn').classList.add('active');
+        }
+
+        async function getInfiniteQuote() {
+            showLoading(true);
+            
+            try {
+                const tags = categoryMap[currentCategory];
+                const url = tags ? `${API_BASE}/random?tags=${tags}` : `${API_BASE}/random`;
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                currentQuote = {
+                    id: data._id,
+                    text: data.content,
+                    author: data.author,
+                    tags: data.tags,
+                    category: currentCategory
+                };
+                
+                displayQuote(currentQuote, false);
+                
+                viewCount++;
+                localStorage.setItem('infiniteViews', viewCount);
+                updateStats();
+                
+            } catch (error) {
+                showNotification('Failed to load quote. Please try again!', 'error');
+                console.error('Error:', error);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function getDailyQuote() {
+            const today = new Date().toDateString();
+            
+            if (dailyQuoteDate === today && dailyQuoteCache) {
+                currentQuote = dailyQuoteCache;
+                displayQuote(currentQuote, true);
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                const response = await fetch(`${API_BASE}/random`);
+                const data = await response.json();
+                
+                currentQuote = {
+                    id: data._id,
+                    text: data.content,
+                    author: data.author,
+                    tags: data.tags,
+                    category: 'daily'
+                };
+                
+                dailyQuoteDate = today;
+                dailyQuoteCache = currentQuote;
+                localStorage.setItem('dailyDate', dailyQuoteDate);
+                localStorage.setItem('dailyQuote', JSON.stringify(dailyQuoteCache));
+                
+                displayQuote(currentQuote, true);
+                
+            } catch (error) {
+                showNotification('Failed to load daily quote!', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function displayQuote(quote, isDaily) {
+            document.getElementById('quoteText').textContent = quote.text;
+            document.getElementById('quoteAuthor').textContent = quote.author;
+            document.getElementById('quoteAuthor').style.display = 'block';
+            
+            const categoryBadge = document.getElementById('categoryBadge');
+            categoryBadge.textContent = quote.tags ? quote.tags[0].toUpperCase() : 'WISDOM';
+            categoryBadge.style.display = 'inline-block';
+            
+            const specialBadge = document.getElementById('specialBadge');
+            if (isDaily) {
+                specialBadge.textContent = '☀️ QUOTE OF THE DAY';
+                specialBadge.style.display = 'inline-block';
+            } else {
+                specialBadge.style.display = 'none';
+            }
+            
+            document.getElementById('apiBadge').style.display = 'inline-block';
+            document.getElementById('quoteActions').style.display = 'flex';
+            
+            updateFavoriteButton();
+        }
+
+        function toggleFavorite() {
+            if (!currentQuote) return;
+            
+            const index = favorites.findIndex(f => f.id === currentQuote.id);
+            if (index > -1) {
+                favorites.splice(index, 1);
+                showNotification('❌ Removed from favorites', 'info');
+            } else {
+                favorites.push({ 
+                    ...currentQuote, 
+                    rating: 0, 
+                    addedAt: new Date().toISOString() 
+                });
+                showNotification('⭐ Added to your collection!', 'success');
+            }
+            
+            localStorage.setItem('infiniteFavorites', JSON.stringify(favorites));
+            updateFavoriteButton();
+            updateStats();
+            
+            if (document.getElementById('favoritesSection').style.display === 'block') {
+                displayFavorites();
+            }
+        }
+
+        function updateFavoriteButton() {
+            if (!currentQuote) return;
+            const isFavorited = favorites.some(f => f.id === currentQuote.id);
+            const btn = document.getElementById('favoriteBtn');
+            const icon = document.getElementById('favoriteIcon');
+            
+            if (isFavorited) {
+                btn.classList.add('favorited');
+                icon.textContent = '⭐';
+            } else {
+                btn.classList.remove('favorited');
+                icon.textContent = '☆';
+            }
+        }
+
+        function toggleFavorites() {
+            const section = document.getElementById('favoritesSection');
+            section.style.display = section.style.display === 'none' ? 'block' : 'none';
+            if (section.style.display === 'block') {
+                displayFavorites();
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function sortFavorites() {
+            displayFavorites();
+        }
+
+        function displayFavorites() {
+            const grid = document.getElementById('favoritesGrid');
+            const sortBy = document.getElementById('sortSelect').value;
+            
+            if (favorites.length === 0) {
+                grid.innerHTML = '<div class="empty-state">✨ No favorites yet. Start saving quotes you love!</div>';
+                return;
+            }
+
+            let sorted = [...favorites];
+            
+            if (sortBy === 'rating') {
+                sorted.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+            } else if (sortBy === 'author') {
+                sorted.sort((a, b) => a.author.localeCompare(b.author));
+            } else {
+                sorted.sort((a, b) => new Date(b.addedAt) - new Date(a.addedAt));
+            }
+
+            grid.innerHTML = sorted.map(quote => `
+                <div class="favorite-card">
+                    <div class="favorite-text">"${quote.text}"</div>
+                    <div class="favorite-author">— ${quote.author}</div>
+                    <div class="favorite-rating">
+                        ${[1, 2, 3, 4, 5].map(star => 
+                            `<span class="star ${star <= (quote.rating || 0) ? 'filled' : ''}" 
+                            onclick="rateQuote('${quote.id}', ${star})">★</span>`
+                        ).join('')}
+                    </div>
+                    <div class="favorite-actions">
+                        <button class="btn-small btn-view" onclick='viewQuote(${JSON.stringify(quote).replace(/'/g, "\\'")})'> 👁️ View</button>
+                        <button class="btn-small btn-remove" onclick="removeFavorite('${quote.id}')">🗑️ Remove</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function rateQuote(id, rating) {
+            const quote = favorites.find(f => f.id === id);
+            if (quote) {
+                quote.rating = rating;
+                localStorage.setItem('infiniteFavorites', JSON.stringify(favorites));
+                displayFavorites();
+                showNotification(`⭐ Rated ${rating} stars!`, 'success');
+            }
+        }
+
+        function viewQuote(quote) {
+            currentQuote = quote;
+            displayQuote(quote, false);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function removeFavorite(id) {
+            favorites = favorites.filter(f => f.id !== id);
+            localStorage.setItem('infiniteFavorites', JSON.stringify(favorites));
+            displayFavorites();
+            updateStats();
+            showNotification('🗑️ Removed from collection', 'info');
+        }
+
+        function openShareModal() {
+            if (!currentQuote) return;
+            document.getElementById('shareModal').classList.add('show');
+        }
+
+        function closeShareModal() {
+            document.getElementById('shareModal').classList.remove('show');
+        }
+
+        function shareToTwitter() {
+            if (!currentQuote) return;
+            const text = encodeURIComponent(`"${currentQuote.text}" — ${currentQuote.author}`);
+            window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
+            showNotification('🐦 Opening Twitter...', 'info');
+        }
+
+        function shareToFacebook() {
+            if (!currentQuote) return;
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+            showNotification('📘 Opening Facebook...', 'info');
+        }
+
+        function shareToWhatsApp() {
+            if (!currentQuote) return;
+            const text = encodeURIComponent(`"${currentQuote.text}" — ${currentQuote.author}`);
+            window.open(`https://wa.me/?text=${text}`, '_blank');
+            showNotification('💬 Opening WhatsApp...', 'info');
+        }
+
+        function copyQuote() {
+            if (!currentQuote) return;
+            const text = `"${currentQuote.text}" — ${currentQuote.author}`;
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification('📋 Copied to clipboard!', 'success');
+            });
+        }
+
+        function copyQuoteModal() {
+            copyQuote();
+            closeShareModal();
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').classList.toggle('show', show);
+            document.getElementById('quoteDisplay').style.opacity = show ? '0.5' : '1';
+        }
+
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.borderLeftColor = type === 'success' ? 'var(--success)' : type === 'error' ? '#dc3545' : 'var(--primary)';
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function updateStats() {
+            document.getElementById('viewCount').textContent = viewCount;
+            document.getElementById('favCount').textContent = favorites.length;
+            document.getElementById('favCountBtn').textContent = favorites.length;
+            document.getElementById('favTotal').textContent = favorites.length;
+            document.getElementById('streakCount').textContent = streakCount;
+        }
+
+        checkStreak();
+        updateStats();
+    </script>
+</body>
+</html>
